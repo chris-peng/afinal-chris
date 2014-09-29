@@ -16,5 +16,13 @@
 package net.tsz.afinal.db.table;
 
 public class Id extends Property{
+	private boolean autoIncrement;
+	
+	public boolean isAutoIncrement() {
+		return autoIncrement;
+	}
 
+	public void setAutoIncrement(boolean autoIncrement) {
+		this.autoIncrement = autoIncrement;
+	}
 }

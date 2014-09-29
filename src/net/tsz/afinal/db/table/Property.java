@@ -135,6 +135,5 @@ public class Property {
 	public void setField(Field field) {
 		this.field = field;
 	}
-	
-	
+
 }

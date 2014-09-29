@@ -21,7 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 /**
  * @title Id主键配置
- * @description 不配置的时候默认找类的id或_id字段作为主键，column不配置的是默认为字段名
+ * @description 不配置的时候默认找类的id或_id字段作为主键，column不配置的是默认为字段名，autoIncrement是否为自增长字段，只对int/Integer/long/Long数据类型起作用
  * @author michael Young (www.YangFuhai.com)
  * @version 1.0
  * @created 2012-10-31
@@ -30,4 +30,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME) 
 public @interface Id {
 	 public String column() default "";
+	 public boolean autoIncrement() default false;
 }

@@ -19,14 +19,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import android.text.TextUtils;
-
 import net.tsz.afinal.db.table.Id;
 import net.tsz.afinal.db.table.KeyValue;
 import net.tsz.afinal.db.table.ManyToOne;
 import net.tsz.afinal.db.table.Property;
 import net.tsz.afinal.db.table.TableInfo;
 import net.tsz.afinal.exception.DbException;
+import android.text.TextUtils;
 
 public class SqlBuilder {
 	
@@ -74,8 +73,8 @@ public class SqlBuilder {
 		TableInfo table=TableInfo.get(entity.getClass());
 		Object idvalue = table.getId().getValue(entity);
 		
-		if(!(idvalue instanceof Integer)){ //用了非自增长,添加id , 采用自增长就不需要添加id了
-			if(idvalue instanceof String && idvalue != null){
+		if(!table.getId().isAutoIncrement()){ //用了非自增长,添加id , 采用自增长就不需要添加id了
+			if(idvalue != null){
 				KeyValue kv = new KeyValue(table.getId().getColumn(),idvalue);
 				keyValueList.add(kv);
 			}
@@ -85,8 +84,9 @@ public class SqlBuilder {
 		Collection<Property> propertys = table.propertyMap.values();
 		for(Property property : propertys){
 			KeyValue kv = property2KeyValue(property,entity) ;
-			if(kv!=null)
+			if(kv!=null){
 				keyValueList.add(kv);
+			}
 		}
 		
 		//添加外键（多对一）
@@ -312,7 +312,11 @@ public class SqlBuilder {
 		Class<?> primaryClazz = id.getDataType();
 		if( primaryClazz == int.class || primaryClazz==Integer.class 
 				|| primaryClazz == long.class || primaryClazz == Long.class){
-			strSQL.append(id.getColumn()).append(" INTEGER PRIMARY KEY AUTOINCREMENT,");
+			if(id.isAutoIncrement()){
+				strSQL.append(id.getColumn()).append(" INTEGER PRIMARY KEY AUTOINCREMENT,");
+			}else{
+				strSQL.append(id.getColumn()).append(" INTEGER PRIMARY KEY,");
+			}
 		}else{
 			strSQL.append(id.getColumn()).append(" TEXT PRIMARY KEY,");
 		}
@@ -369,7 +373,11 @@ public class SqlBuilder {
 		String pcolumn=property.getColumn();
 		Object value = property.getValue(entity);
 		if(value!=null){
-			kv = new KeyValue(pcolumn, value);
+			if(value instanceof Boolean){
+				kv = new KeyValue(pcolumn, (Boolean)value ? 1 : 0);
+			}else{
+				kv = new KeyValue(pcolumn, value);
+			}
 		}else{
 			if(property.getDefaultValue()!=null && property.getDefaultValue().trim().length()!=0)
 				kv = new KeyValue(pcolumn, property.getDefaultValue());

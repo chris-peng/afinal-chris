@@ -133,6 +133,19 @@ public class ClassUtils {
 		return primaryKeyField;
 	}
 	
+	/**
+	 * 判断字段是否为自增长字段
+	 * @param field
+	 * @return
+	 */
+	public static boolean isAutoincrement(Field field){
+		Id idAnn = field.getAnnotation(Id.class);
+		if(idAnn == null){
+			return false;
+		}
+		return idAnn.autoIncrement();
+	}
+	
 	
 	/**
 	 * 根据实体类 获得 实体类对应的表名
