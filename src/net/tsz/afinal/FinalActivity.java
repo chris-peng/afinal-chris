@@ -59,8 +59,8 @@ public abstract class FinalActivity extends Activity {
 				try {
 					field.setAccessible(true);
 					
-					if(field.get(injectedSource)!= null )
-						continue;
+//					if(field.get(injectedSource)!= null )
+//						continue;
 				
 					ViewInject viewInject = field.getAnnotation(ViewInject.class);
 					if(viewInject!=null){
