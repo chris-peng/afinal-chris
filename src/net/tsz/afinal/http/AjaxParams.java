@@ -39,6 +39,8 @@ import org.apache.http.message.BasicNameValuePair;
  * params.put("username", "michael");
  * params.put("password", "123456");
  * params.put("email", "test@tsz.net");
+ * params.put("email", new String[]{"test@tsz.net"});
+ * params.put("email", new ArrayList<String>());
  * params.put("profile_picture", new File("/mnt/sdcard/pic.jpg")); // 上传文件
  * params.put("profile_picture2", inputStream); // 上传数据流
  * params.put("profile_picture3", new ByteArrayInputStream(bytes)); // 提交字节流
@@ -62,6 +64,7 @@ public class AjaxParams {
 
     protected ConcurrentHashMap<String, String> urlParams;
     protected ConcurrentHashMap<String, FileWrapper> fileParams;
+    protected ConcurrentHashMap<String, String[]> arrayParams;
 
     public AjaxParams() {
         init();
@@ -97,6 +100,18 @@ public class AjaxParams {
             urlParams.put(key, value);
         }
     }
+    
+    public void put(String key, String[] values){
+        if(key != null && values != null) {
+            arrayParams.put(key, values);
+        }
+    }
+    
+    public void put(String key, List<String> values){
+        if(key != null && values != null) {
+            arrayParams.put(key, values.toArray(new String[values.size()]));
+        }
+    }
 
     public void put(String key, File file) throws FileNotFoundException {
         put(key, new FileInputStream(file), file.getName());
@@ -126,6 +141,7 @@ public class AjaxParams {
     public void remove(String key){
         urlParams.remove(key);
         fileParams.remove(key);
+        arrayParams.remove(key);
     }
 
     @Override
@@ -197,6 +213,7 @@ public class AjaxParams {
     private void init(){
         urlParams = new ConcurrentHashMap<String, String>();
         fileParams = new ConcurrentHashMap<String, FileWrapper>();
+        arrayParams = new ConcurrentHashMap<String, String[]>();
     }
 
     protected List<BasicNameValuePair> getParamsList() {
@@ -204,6 +221,12 @@ public class AjaxParams {
 
         for(ConcurrentHashMap.Entry<String, String> entry : urlParams.entrySet()) {
             lparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
+        
+        for(ConcurrentHashMap.Entry<String, String[]> entry : arrayParams.entrySet()){
+        	for(String value : entry.getValue()){
+        		lparams.add(new BasicNameValuePair(entry.getKey(), value));
+        	}
         }
 
         return lparams;
