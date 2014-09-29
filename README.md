@@ -1,9 +1,9 @@
 #这里是chris的修改版，修改的内容:
 * FinalHttp增加数组参数支持
 * 修改FinalDb：
--   支持保存的对象没有id字段，此时会自动为其新建自增长id字段;
--   给Id注解增加AutoIncrement（是否为自增长字段）字段，被保存对象的主键只有其Id注解设置了该值为true时才会被创建为自增长列，而原FinalDb对所有为int/Integer/long/Long类型的主键都自动创建为自增长列。
--   修改当被保存的对象中有boolean/Boolean类型字段时保存的数据不正确的bug
+    *支持保存的对象没有id字段，此时会自动为其新建自增长id字段;
+    *给Id注解增加AutoIncrement（是否为自增长字段）字段，被保存对象的主键只有其Id注解设置了该值为true时才会被创建为自增长列，而原FinalDb对所有为int/Integer/long/Long类型的主键都自动创建为自增长列。
+    *修改当被保存的对象中有boolean/Boolean类型字段时保存的数据不正确的bug
 * 增加FinalBitmap对加载动画AnimationDrawble的支持
 * 修改fragment使用注解时出错的问题
 
