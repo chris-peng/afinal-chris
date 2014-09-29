@@ -34,11 +34,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.ImageView;
 
 public class FinalBitmap {
@@ -92,6 +94,11 @@ public class FinalBitmap {
 	 */
 	public FinalBitmap configLoadingImage(int resId) {
 		mConfig.defaultDisplayConfig.setLoadingBitmap(BitmapFactory.decodeResource(mContext.getResources(), resId));
+		return this;
+	}
+	
+	public FinalBitmap configLoadingAnimationDrawble(int loadingAnimationDrawbleResource) {
+		mConfig.defaultDisplayConfig.setLoadingAnimationDrawable(loadingAnimationDrawbleResource);
 		return this;
 	}
 	
@@ -289,6 +296,18 @@ public class FinalBitmap {
 		doDisplay(imageView,uri,displayConfig);
 	}
 	
+	public void display(View imageView,String uri,int loadingAnimationDrawableResource){
+		BitmapDisplayConfig displayConfig = configMap.get(String.valueOf(
+				"loadingAnimationDrawble" + loadingAnimationDrawableResource));
+		if(displayConfig==null){
+			displayConfig = getDisplayConfig();
+			displayConfig.setLoadingAnimationDrawable(loadingAnimationDrawableResource);
+			configMap.put(String.valueOf("loadingAnimationDrawble" + loadingAnimationDrawableResource), displayConfig);
+		}
+		
+		doDisplay(imageView,uri,displayConfig);
+	}
+	
 	
 	public void display(View imageView,String uri,Bitmap loadingBitmap,Bitmap laodfailBitmap){
 		BitmapDisplayConfig displayConfig = configMap.get(String.valueOf(loadingBitmap)+"_"+String.valueOf(laodfailBitmap));
@@ -351,12 +370,27 @@ public class FinalBitmap {
 		}else if (checkImageTask(uri, imageView)) {
 			final BitmapLoadAndDisplayTask task = new BitmapLoadAndDisplayTask(imageView, displayConfig );
 			//设置默认图片
-			final AsyncDrawable asyncDrawable = new AsyncDrawable(mContext.getResources(), displayConfig.getLoadingBitmap(), task);
-	       
-			if(imageView instanceof ImageView){
-				((ImageView)imageView).setImageDrawable(asyncDrawable);
+			if(displayConfig.getLoadingBitmap() != null){
+				final AsyncDrawable asyncDrawable = new AsyncDrawable(mContext.getResources(), displayConfig.getLoadingBitmap(), task);
+		        
+				if(imageView instanceof ImageView){
+					((ImageView)imageView).setImageDrawable(asyncDrawable);
+				}else{
+					imageView.setBackgroundDrawable(asyncDrawable);
+				}
 			}else{
-				imageView.setBackgroundDrawable(asyncDrawable);
+				AnimationDrawable loadingAd = (AnimationDrawable) 
+						mContext.getResources().getDrawable(displayConfig.getLoadingAnimationDrawable());
+				if(loadingAd != null){
+					imageView.setOnFocusChangeListener(new AsyncOnFocusChangeListener(
+							imageView.getOnFocusChangeListener(), task));
+					if(imageView instanceof ImageView){
+						((ImageView)imageView).setImageDrawable(loadingAd);
+					}else{
+						imageView.setBackgroundDrawable(loadingAd);
+					}
+					loadingAd.start();
+				}
 			}
 	        
 	        task.executeOnExecutor(bitmapLoadAndDisplayExecutor, uri);
@@ -587,6 +621,11 @@ public class FinalBitmap {
 			if (drawable instanceof AsyncDrawable) {
 				final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
 				return asyncDrawable.getBitmapWorkerTask();
+			}else if(drawable instanceof AnimationDrawable){
+				OnFocusChangeListener l = imageView.getOnFocusChangeListener();
+				if(l instanceof AsyncOnFocusChangeListener){
+					return ((AsyncOnFocusChangeListener) l).getBitmapWorkerTask();
+				}
 			}
 		}
 		return null;
@@ -624,6 +663,26 @@ public class FinalBitmap {
 						bitmapWorkerTask);
 			}
 
+			public BitmapLoadAndDisplayTask getBitmapWorkerTask() {
+				return bitmapWorkerTaskReference.get();
+			}
+		}
+		
+		private static class AsyncOnFocusChangeListener implements OnFocusChangeListener{
+			private final WeakReference<BitmapLoadAndDisplayTask> bitmapWorkerTaskReference;
+			private OnFocusChangeListener originOnFocusChangeListener;
+			public AsyncOnFocusChangeListener(OnFocusChangeListener originOnFocusChangeListener, BitmapLoadAndDisplayTask bitmapWorkerTask){
+				this.originOnFocusChangeListener = originOnFocusChangeListener;
+				bitmapWorkerTaskReference = new WeakReference<BitmapLoadAndDisplayTask>(
+						bitmapWorkerTask);
+			}
+			@Override
+			public void onFocusChange(View arg0, boolean arg1) {
+				if(originOnFocusChangeListener != null){
+					originOnFocusChangeListener.onFocusChange(arg0, arg1);
+				}
+			}
+			
 			public BitmapLoadAndDisplayTask getBitmapWorkerTask() {
 				return bitmapWorkerTaskReference.get();
 			}
