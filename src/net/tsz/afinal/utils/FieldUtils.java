@@ -322,7 +322,7 @@ public class FieldUtils {
 		return isManyToOne(field) || isOneToMany(field);
 	}
 	
-	public static boolean isBaseDateType(Field field){
+	public static boolean isBaseDataType(Field field){
 		Class<?> clazz = field.getType();
 		return   clazz.equals(String.class) ||  
 		         clazz.equals(Integer.class)||  

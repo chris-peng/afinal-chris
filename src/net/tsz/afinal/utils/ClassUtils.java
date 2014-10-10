@@ -175,7 +175,7 @@ public class ClassUtils {
 			for (Field f : fs) {
 				//必须是基本数据类型和没有标瞬时态的字段
 				if(!FieldUtils.isTransient(f)){
-					if (FieldUtils.isBaseDateType(f)) {
+					if (FieldUtils.isBaseDataType(f)) {
 						
 						if(f.getName().equals(primaryKeyFieldName)) //过滤主键
 							continue;
