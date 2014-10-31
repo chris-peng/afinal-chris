@@ -180,12 +180,8 @@ public class FinalHttp {
     public void configTimeout(int timeout){
         final HttpParams httpParams = this.httpClient.getParams();
         ConnManagerParams.setTimeout(httpParams, timeout);
-        HttpConnectionParams.setConnectionTimeout(httpParams, timeout);
-    }
-    
-    public void configSoTimeout(int timeout){
-        final HttpParams httpParams = this.httpClient.getParams();
         HttpConnectionParams.setSoTimeout(httpParams, timeout);
+        HttpConnectionParams.setConnectionTimeout(httpParams, timeout);
     }
 
     /**
