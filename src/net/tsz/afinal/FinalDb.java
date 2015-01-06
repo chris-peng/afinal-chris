@@ -33,9 +33,11 @@ import net.tsz.afinal.db.table.ManyToOne;
 import net.tsz.afinal.db.table.OneToMany;
 import net.tsz.afinal.db.table.TableInfo;
 import net.tsz.afinal.exception.DbException;
+import net.tsz.afinal.utils.ClassUtils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -752,6 +754,18 @@ public class FinalDb {
 				cursor.close();
 		}
 		return dbModelList;
+	}
+	
+	public void executeSql(String sql){
+		try {
+			db.execSQL(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static String getTableName(Class<?> clazz){
+		return ClassUtils.getTableName(clazz);
 	}
 
 	private void checkTableExist(Class<?> clazz) {
