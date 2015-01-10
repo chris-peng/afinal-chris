@@ -15,10 +15,10 @@
  */
 package net.tsz.afinal.http;
 
-import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,225 +34,288 @@ import org.apache.http.message.BasicNameValuePair;
  * <p>
  * 使用方法:
  * <p>
+ * 
  * <pre>
  * AjaxParams params = new AjaxParams();
- * params.put("username", "michael");
- * params.put("password", "123456");
- * params.put("email", "test@tsz.net");
- * params.put("email", new String[]{"test@tsz.net"});
- * params.put("email", new ArrayList<String>());
- * params.put("profile_picture", new File("/mnt/sdcard/pic.jpg")); // 上传文件
- * params.put("profile_picture2", inputStream); // 上传数据流
- * params.put("profile_picture3", new ByteArrayInputStream(bytes)); // 提交字节流
- *
+ * params.put(&quot;username&quot;, &quot;michael&quot;);
+ * params.put(&quot;password&quot;, &quot;123456&quot;);
+ * params.put(&quot;email&quot;, &quot;test@tsz.net&quot;);
+ * params.put(&quot;email&quot;, new String[] { &quot;test@tsz.net&quot; });
+ * params.put(&quot;email&quot;, new ArrayList&lt;String&gt;());
+ * params.put(&quot;profile_picture&quot;, new File(&quot;/mnt/sdcard/pic.jpg&quot;)); // 上传文件
+ * params.put(&quot;profile_picture2&quot;, inputStream); // 上传数据流
+ * params.put(&quot;profile_picture3&quot;, new ByteArrayInputStream(bytes)); // 提交字节流
+ * 
  * FinalHttp fh = new FinalHttp();
- * fh.post("http://www.yangfuhai.com", params, new AjaxCallBack<String>(){
- * 		@Override
- *		public void onLoading(long count, long current) {
- *				textView.setText(current+"/"+count);
- *		}
- *
- *		@Override
- *		public void onSuccess(String t) {
- *			textView.setText(t==null?"null":t);
- *		}
+ * fh.post(&quot;http://www.yangfuhai.com&quot;, params, new AjaxCallBack&lt;String&gt;() {
+ * 	&#064;Override
+ * 	public void onLoading(long count, long current) {
+ * 		textView.setText(current + &quot;/&quot; + count);
+ * 	}
+ * 
+ * 	&#064;Override
+ * 	public void onSuccess(String t) {
+ * 		textView.setText(t == null ? &quot;null&quot; : t);
+ * 	}
  * });
  * </pre>
  */
 public class AjaxParams {
-    private static String ENCODING = "UTF-8";
+	private static String ENCODING = "UTF-8";
 
-    protected ConcurrentHashMap<String, String> urlParams;
-    protected ConcurrentHashMap<String, FileWrapper> fileParams;
-    protected ConcurrentHashMap<String, String[]> arrayParams;
+	protected ConcurrentHashMap<String, String> urlParams;
+	protected ConcurrentHashMap<String, FileWrapper> fileParams;
+	protected ConcurrentHashMap<String, String[]> arrayParams;
+	protected ConcurrentHashMap<String, FileWrapper[]> fileArrayParams;
+	protected int fileArraySize = 0;
 
-    public AjaxParams() {
-        init();
-    }
+	public AjaxParams() {
+		init();
+	}
 
-    public AjaxParams(Map<String, String> source) {
-        init();
+	public AjaxParams(Map<String, String> source) {
+		init();
 
-        for(Map.Entry<String, String> entry : source.entrySet()) {
-            put(entry.getKey(), entry.getValue());
-        }
-    }
+		for (Map.Entry<String, String> entry : source.entrySet()) {
+			put(entry.getKey(), entry.getValue());
+		}
+	}
 
-    public AjaxParams(String key, String value) {
-        init();
-        put(key, value);
-    }
+	public AjaxParams(String key, String value) {
+		init();
+		put(key, value);
+	}
 
-    public AjaxParams(Object... keysAndValues) {
-      init();
-      int len = keysAndValues.length;
-      if (len % 2 != 0)
-        throw new IllegalArgumentException("Supplied arguments must be even");
-      for (int i = 0; i < len; i += 2) {
-        String key = String.valueOf(keysAndValues[i]);
-        String val = String.valueOf(keysAndValues[i + 1]);
-        put(key, val);
-      }
-    }
+	public AjaxParams(Object... keysAndValues) {
+		init();
+		int len = keysAndValues.length;
+		if (len % 2 != 0)
+			throw new IllegalArgumentException(
+					"Supplied arguments must be even");
+		for (int i = 0; i < len; i += 2) {
+			String key = String.valueOf(keysAndValues[i]);
+			String val = String.valueOf(keysAndValues[i + 1]);
+			put(key, val);
+		}
+	}
 
-    public void put(String key, String value){
-        if(key != null && value != null) {
-            urlParams.put(key, value);
-        }
-    }
-    
-    public void put(String key, String[] values){
-        if(key != null && values != null) {
-            arrayParams.put(key, values);
-        }
-    }
-    
-    public void put(String key, List<String> values){
-        if(key != null && values != null) {
-            arrayParams.put(key, values.toArray(new String[values.size()]));
-        }
-    }
+	public void put(String key, String value) {
+		if (key != null && value != null) {
+			urlParams.put(key, value);
+		}
+	}
 
-    public void put(String key, File file) throws FileNotFoundException {
-        put(key, new FileInputStream(file), file.getName());
-    }
+	public void put(String key, String[] values) {
+		if (key != null && values != null) {
+			arrayParams.put(key, values);
+		}
+	}
 
-    public void put(String key, InputStream stream) {
-        put(key, stream, null);
-    }
+	public void put(String key, List<String> values) {
+		if (key != null && values != null) {
+			arrayParams.put(key, values.toArray(new String[values.size()]));
+		}
+	}
 
-    public void put(String key, InputStream stream, String fileName) {
-        put(key, stream, fileName, null);
-    }
+	public void put(String key, File file) throws FileNotFoundException {
+		put(key, new FileInputStream(file), file.getName());
+	}
 
-    /**
-     * 添加 inputStream 到请求中.
-     * @param key the key name for the new param.
-     * @param stream the input stream to add.
-     * @param fileName the name of the file.
-     * @param contentType the content type of the file, eg. application/json
-     */
-    public void put(String key, InputStream stream, String fileName, String contentType) {
-        if(key != null && stream != null) {
-            fileParams.put(key, new FileWrapper(stream, fileName, contentType));
-        }
-    }
+	public void put(String key, File[] files) throws FileNotFoundException {
+		if (key != null && files != null && files.length > 0) {
+			FileWrapper[] fws = new FileWrapper[files.length];
+			for (int i = 0; i < files.length; i++) {
+				fws[i] = new FileWrapper(new FileInputStream(files[i]), null,
+						null);
+				fileArraySize++;
+			}
+			fileArrayParams.put(key, fws);
+		}
+	}
+	
+	public void put(String key, InputStream[] files) throws FileNotFoundException {
+		if (key != null && files != null && files.length > 0) {
+			FileWrapper[] fws = new FileWrapper[files.length];
+			for (int i = 0; i < files.length; i++) {
+				fws[i] = new FileWrapper(files[i], null,
+						null);
+				fileArraySize++;
+			}
+			fileArrayParams.put(key, fws);
+		}
+	}
 
-    public void remove(String key){
-        urlParams.remove(key);
-        fileParams.remove(key);
-        arrayParams.remove(key);
-    }
+	public void put(String key, InputStream stream) {
+		put(key, stream, null);
+	}
 
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        for(ConcurrentHashMap.Entry<String, String> entry : urlParams.entrySet()) {
-            if(result.length() > 0)
-                result.append("&");
+	public void put(String key, InputStream stream, String fileName) {
+		put(key, stream, fileName, null);
+	}
 
-            result.append(entry.getKey());
-            result.append("=");
-            result.append(entry.getValue());
-        }
+	/**
+	 * 添加 inputStream 到请求中.
+	 * 
+	 * @param key
+	 *            the key name for the new param.
+	 * @param stream
+	 *            the input stream to add.
+	 * @param fileName
+	 *            the name of the file.
+	 * @param contentType
+	 *            the content type of the file, eg. application/json
+	 */
+	public void put(String key, InputStream stream, String fileName,
+			String contentType) {
+		if (key != null && stream != null) {
+			fileParams.put(key, new FileWrapper(stream, fileName, contentType));
+		}
+	}
 
-        for(ConcurrentHashMap.Entry<String, FileWrapper> entry : fileParams.entrySet()) {
-            if(result.length() > 0)
-                result.append("&");
+	public void remove(String key) {
+		urlParams.remove(key);
+		fileParams.remove(key);
+		arrayParams.remove(key);
+	}
 
-            result.append(entry.getKey());
-            result.append("=");
-            result.append("FILE");
-        }
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		for (ConcurrentHashMap.Entry<String, String> entry : urlParams
+				.entrySet()) {
+			if (result.length() > 0)
+				result.append("&");
 
-        return result.toString();
-    }
+			result.append(entry.getKey());
+			result.append("=");
+			result.append(entry.getValue());
+		}
 
-   /**
-     * Returns an HttpEntity containing all request parameters
-     */
-    public HttpEntity getEntity() {
-        HttpEntity entity = null;
+		for (ConcurrentHashMap.Entry<String, FileWrapper> entry : fileParams
+				.entrySet()) {
+			if (result.length() > 0)
+				result.append("&");
 
-        if(!fileParams.isEmpty()) {
-            MultipartEntity multipartEntity = new MultipartEntity();
+			result.append(entry.getKey());
+			result.append("=");
+			result.append("FILE");
+		}
 
-            // Add string params
-            for(ConcurrentHashMap.Entry<String, String> entry : urlParams.entrySet()) {
-                multipartEntity.addPart(entry.getKey(), entry.getValue());
-            }
+		return result.toString();
+	}
 
-            // Add file params
-            int currentIndex = 0;
-            int lastIndex = fileParams.entrySet().size() - 1;
-            for(ConcurrentHashMap.Entry<String, FileWrapper> entry : fileParams.entrySet()) {
-                FileWrapper file = entry.getValue();
-                if(file.inputStream != null) {
-                    boolean isLast = currentIndex == lastIndex;
-                    if(file.contentType != null) {
-                        multipartEntity.addPart(entry.getKey(), file.getFileName(), file.inputStream, file.contentType, isLast);
-                    } else {
-                        multipartEntity.addPart(entry.getKey(), file.getFileName(), file.inputStream, isLast);
-                    }
-                }
-                currentIndex++;
-            }
+	/**
+	 * Returns an HttpEntity containing all request parameters
+	 */
+	public HttpEntity getEntity() {
+		HttpEntity entity = null;
 
-            entity = multipartEntity;
-        } else {
-            try {
-                entity = new UrlEncodedFormEntity(getParamsList(), ENCODING);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
+		if (!fileParams.isEmpty() || !fileArrayParams.isEmpty()) {
+			MultipartEntity multipartEntity = new MultipartEntity();
 
-        return entity;
-    }
+			// Add string params
+			for (ConcurrentHashMap.Entry<String, String> entry : urlParams
+					.entrySet()) {
+				multipartEntity.addPart(entry.getKey(), entry.getValue());
+			}
 
-    private void init(){
-        urlParams = new ConcurrentHashMap<String, String>();
-        fileParams = new ConcurrentHashMap<String, FileWrapper>();
-        arrayParams = new ConcurrentHashMap<String, String[]>();
-    }
+			// Add file params
+			int currentIndex = 0;
+			int lastIndex = fileParams.entrySet().size() - 1 + fileArraySize;
+			for (ConcurrentHashMap.Entry<String, FileWrapper> entry : fileParams
+					.entrySet()) {
+				FileWrapper file = entry.getValue();
+				if (file.inputStream != null) {
+					boolean isLast = currentIndex == lastIndex;
+					if (file.contentType != null) {
+						multipartEntity.addPart(entry.getKey(),
+								file.getFileName(), file.inputStream,
+								file.contentType, isLast);
+					} else {
+						multipartEntity.addPart(entry.getKey(),
+								file.getFileName(), file.inputStream, isLast);
+					}
+				}
+				currentIndex++;
+			}
+			for (ConcurrentHashMap.Entry<String, FileWrapper[]> entry : fileArrayParams
+					.entrySet()) {
+				FileWrapper[] files = entry.getValue();
+				for(FileWrapper file : files){
+					if (file.inputStream != null) {
+						boolean isLast = currentIndex == lastIndex;
+						if (file.contentType != null) {
+							multipartEntity.addPart(entry.getKey(),
+									file.getFileName(), file.inputStream,
+									file.contentType, isLast);
+						} else {
+							multipartEntity.addPart(entry.getKey(),
+									file.getFileName(), file.inputStream, isLast);
+						}
+					}
+					currentIndex++;
+				}
+			}
 
-    protected List<BasicNameValuePair> getParamsList() {
-        List<BasicNameValuePair> lparams = new LinkedList<BasicNameValuePair>();
+			entity = multipartEntity;
+		} else {
+			try {
+				entity = new UrlEncodedFormEntity(getParamsList(), ENCODING);
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
 
-        for(ConcurrentHashMap.Entry<String, String> entry : urlParams.entrySet()) {
-            lparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-        }
-        
-        for(ConcurrentHashMap.Entry<String, String[]> entry : arrayParams.entrySet()){
-        	for(String value : entry.getValue()){
-        		lparams.add(new BasicNameValuePair(entry.getKey(), value));
-        	}
-        }
+		return entity;
+	}
 
-        return lparams;
-    }
+	private void init() {
+		urlParams = new ConcurrentHashMap<String, String>();
+		fileParams = new ConcurrentHashMap<String, FileWrapper>();
+		arrayParams = new ConcurrentHashMap<String, String[]>();
+		fileArrayParams = new ConcurrentHashMap<String, FileWrapper[]>();
+	}
 
-    public String getParamString() {
-        return URLEncodedUtils.format(getParamsList(), ENCODING);
-    }
+	protected List<BasicNameValuePair> getParamsList() {
+		List<BasicNameValuePair> lparams = new LinkedList<BasicNameValuePair>();
 
-    private static class FileWrapper {
-        public InputStream inputStream;
-        public String fileName;
-        public String contentType;
+		for (ConcurrentHashMap.Entry<String, String> entry : urlParams
+				.entrySet()) {
+			lparams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+		}
 
-        public FileWrapper(InputStream inputStream, String fileName, String contentType) {
-            this.inputStream = inputStream;
-            this.fileName = fileName;
-            this.contentType = contentType;
-        }
+		for (ConcurrentHashMap.Entry<String, String[]> entry : arrayParams
+				.entrySet()) {
+			for (String value : entry.getValue()) {
+				lparams.add(new BasicNameValuePair(entry.getKey(), value));
+			}
+		}
 
-        public String getFileName() {
-            if(fileName != null) {
-                return fileName;
-            } else {
-                return "nofilename";
-            }
-        }
-    }
+		return lparams;
+	}
+
+	public String getParamString() {
+		return URLEncodedUtils.format(getParamsList(), ENCODING);
+	}
+
+	private static class FileWrapper {
+		public InputStream inputStream;
+		public String fileName;
+		public String contentType;
+
+		public FileWrapper(InputStream inputStream, String fileName,
+				String contentType) {
+			this.inputStream = inputStream;
+			this.fileName = fileName;
+			this.contentType = contentType;
+		}
+
+		public String getFileName() {
+			if (fileName != null) {
+				return fileName;
+			} else {
+				return "nofilename";
+			}
+		}
+	}
 }
