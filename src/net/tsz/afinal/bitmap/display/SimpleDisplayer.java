@@ -68,13 +68,17 @@ public class SimpleDisplayer implements Displayer{
 	
 	
 	private void animationDisplay(View imageView,Bitmap bitmap,Animation animation){
-		animation.setStartTime(AnimationUtils.currentAnimationTimeMillis());		
+		if(animation != null){
+			animation.setStartTime(AnimationUtils.currentAnimationTimeMillis());
+		}
         if(imageView instanceof ImageView){
 			((ImageView)imageView).setImageBitmap(bitmap);
 		}else{
 			imageView.setBackgroundDrawable(new BitmapDrawable(bitmap));
 		}
-        imageView.startAnimation(animation);
+        if(animation != null){
+        	imageView.startAnimation(animation);
+        }
 	}
 
 }
