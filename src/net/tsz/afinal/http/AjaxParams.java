@@ -125,7 +125,7 @@ public class AjaxParams {
 		if (key != null && files != null && files.length > 0) {
 			FileWrapper[] fws = new FileWrapper[files.length];
 			for (int i = 0; i < files.length; i++) {
-				fws[i] = new FileWrapper(new FileInputStream(files[i]), null,
+				fws[i] = new FileWrapper(new FileInputStream(files[i]), files[i].getName(),
 						null);
 				fileArraySize++;
 			}
