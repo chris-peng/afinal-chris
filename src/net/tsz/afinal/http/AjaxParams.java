@@ -218,6 +218,13 @@ public class AjaxParams {
 					.entrySet()) {
 				multipartEntity.addPart(entry.getKey(), entry.getValue());
 			}
+			
+			for (ConcurrentHashMap.Entry<String, String[]> entry : arrayParams
+					.entrySet()) {
+				for (String value : entry.getValue()) {
+					multipartEntity.addPart(entry.getKey(), value);
+				}
+			}
 
 			// Add file params
 			int currentIndex = 0;
