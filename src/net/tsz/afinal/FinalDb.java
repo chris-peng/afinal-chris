@@ -322,6 +322,17 @@ public class FinalDb {
 		checkTableExist(entity.getClass());
 		exeSqlInfo(SqlBuilder.getUpdateSqlAsSqlInfo(entity, strWhere));
 	}
+	
+	public void update(Object entity, String strWhere, Object[] args) {
+		checkTableExist(entity.getClass());
+		SqlInfo si = SqlBuilder.getUpdateSqlAsSqlInfo(entity, strWhere);
+		if(args != null){
+			for(Object o : args){
+				si.addValue(o);
+			}
+		}
+		exeSqlInfo(si);
+	}
 
 	/**
 	 * 删除数据
@@ -658,6 +669,22 @@ public class FinalDb {
 		return findAllBySql(clazz, SqlBuilder.getSelectSQL(clazz)
 				+ " ORDER BY " + orderBy);
 	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param clazz
+	 * @param orderBy
+	 * @param args	字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	public <T> List<T> findAll(Class<T> clazz, String orderBy, String[] args) {
+		checkTableExist(clazz);
+		return findAllBySql(clazz, SqlBuilder.getSelectSQL(clazz)
+				+ " ORDER BY " + orderBy, args);
+	}
 
 	/**
 	 * 根据条件查找所有数据
@@ -671,6 +698,22 @@ public class FinalDb {
 		return findAllBySql(clazz,
 				SqlBuilder.getSelectSQLByWhere(clazz, strWhere));
 	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param clazz
+	 * @param strWhere
+	 * @param args	字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	public <T> List<T> findAllByWhere(Class<T> clazz, String strWhere, String[] args) {
+		checkTableExist(clazz);
+		return findAllBySql(clazz,
+				SqlBuilder.getSelectSQLByWhere(clazz, strWhere), args);
+	}
 
 	/**
 	 * 根据条件查找所有数据
@@ -683,10 +726,26 @@ public class FinalDb {
 	 */
 	public <T> List<T> findAllByWhere(Class<T> clazz, String strWhere,
 			String orderBy) {
+		return findAllByWhere(clazz, strWhere, orderBy, null);
+	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param clazz
+	 * @param strWhere
+	 * @param orderBy
+	 * @param args	字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	public <T> List<T> findAllByWhere(Class<T> clazz, String strWhere,
+			String orderBy, String[] args) {
 		checkTableExist(clazz);
 		return findAllBySql(clazz,
 				SqlBuilder.getSelectSQLByWhere(clazz, strWhere) + " ORDER BY "
-						+ orderBy);
+						+ orderBy, args);
 	}
 
 	/**
@@ -696,9 +755,23 @@ public class FinalDb {
 	 * @param strSQL
 	 */
 	private <T> List<T> findAllBySql(Class<T> clazz, String strSQL) {
+		return findAllBySql(clazz, strSQL, null);
+	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param clazz
+	 * @param strSQL
+	 * @param args	字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	private <T> List<T> findAllBySql(Class<T> clazz, String strSQL, String[] args) {
 		checkTableExist(clazz);
 		debugSql(strSQL);
-		Cursor cursor = db.rawQuery(strSQL, null);
+		Cursor cursor = db.rawQuery(strSQL, args);
 		try {
 			List<T> list = new ArrayList<T>();
 			while (cursor.moveToNext()) {
@@ -722,10 +795,23 @@ public class FinalDb {
 	 * @param strSQL
 	 */
 	public DbModel findDbModelBySQL(String strSQL) {
+		return findDbModelBySQL(strSQL, null);
+	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param strSQL
+	 * @param args	字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	public DbModel findDbModelBySQL(String strSQL, String[] args) {
 		debugSql(strSQL);
 		Cursor cursor = null;
 		try {
-			cursor = db.rawQuery(strSQL, null);
+			cursor = db.rawQuery(strSQL, args);
 			if (cursor.moveToNext()) {
 				return CursorUtils.getDbModel(cursor);
 			}
@@ -739,11 +825,24 @@ public class FinalDb {
 	}
 
 	public List<DbModel> findDbModelListBySQL(String strSQL) {
+		return findDbModelListBySQL(strSQL, null);
+	}
+	
+	/**
+	 * 
+	 * @author chris
+	 *
+	 * @param strSQL
+	 * @param args		字符串值占位符值数组
+	 * @return
+	 * @since 2015年2月11日
+	 */
+	public List<DbModel> findDbModelListBySQL(String strSQL, String[] args) {
 		debugSql(strSQL);
 		List<DbModel> dbModelList = new ArrayList<DbModel>();
 		Cursor cursor = null;
 		try {
-			cursor = db.rawQuery(strSQL, null);
+			cursor = db.rawQuery(strSQL, args);
 			while (cursor.moveToNext()) {
 				dbModelList.add(CursorUtils.getDbModel(cursor));
 			}
@@ -759,6 +858,14 @@ public class FinalDb {
 	public void executeSql(String sql){
 		try {
 			db.execSQL(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void executeSql(String sql, Object[] args){
+		try {
+			db.execSQL(sql, args);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
