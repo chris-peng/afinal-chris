@@ -16,8 +16,15 @@
 package net.tsz.afinal.bitmap.core;
 
 import android.graphics.Bitmap;
+import android.view.View;
 import android.view.animation.Animation;
 
+/**
+ * 必须覆盖实现getLoadingBitmap方法，或者主动调用setLoadingBitmap方法，否则图片加载线程无法映射，导致无法加载
+ * @author chris
+ * 
+ * @since 2015年3月12日
+ */
 public class BitmapDisplayConfig {
 	
 	
@@ -64,6 +71,13 @@ public class BitmapDisplayConfig {
 		this.animationType = animationType;
 	}
 
+	/**
+	 * 必须覆盖实现，或者主动调用setLoadingBitmap方法，否则图片加载线程无法映射，导致无法加载
+	 * @author chris
+	 *
+	 * @return
+	 * @since 2015年3月12日
+	 */
 	public Bitmap getLoadingBitmap() {
 		return loadingBitmap;
 	}
@@ -88,6 +102,17 @@ public class BitmapDisplayConfig {
 		this.loadingAnimationDrawable = loadingAnimationDrawable;
 	}
 
+	/**
+	 * 图片加载完显示前的回调方法
+	 * @author chris
+	 *
+	 * @param imageView
+	 * @param bitmap
+	 * @since 2015年3月12日
+	 */
+	public void onBitmapLoadComplete(View imageView, Bitmap bitmap){
+		
+	}
 
 	public class AnimationType{
 		public static final int userDefined = 0;

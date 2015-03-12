@@ -29,6 +29,7 @@ import android.widget.ImageView;
 public class SimpleDisplayer implements Displayer{
 	
 	public void loadCompletedisplay(View imageView,Bitmap bitmap,BitmapDisplayConfig config){
+		config.onBitmapLoadComplete(imageView, bitmap);
 		switch (config.getAnimationType()) {
 		case BitmapDisplayConfig.AnimationType.fadeIn:
 			fadeInDisplay(imageView,bitmap);
