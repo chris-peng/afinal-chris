@@ -38,60 +38,20 @@ public class DbModel {
 		return Integer.valueOf(getRawString(column));
 	}
 	
-	public int getInt(String column, int defaultValue){
-		String sValue = getString(column);
-		if(sValue == null){
-			return defaultValue;
-		}
-		return Integer.valueOf(sValue);
-	}
-	
 	public boolean getBoolean(String column){
 		return Boolean.valueOf(getRawString(column));
-	}
-	
-	public boolean getBoolean(String column, boolean defaultValue){
-		String sValue = getString(column);
-		if(sValue == null){
-			return defaultValue;
-		}
-		return Boolean.valueOf(sValue);
 	}
 	
 	public double getDouble(String column){
 		return Double.valueOf(getRawString(column));
 	}
 	
-	public double getDouble(String column, double defaultValue){
-		String sValue = getString(column);
-		if(sValue == null){
-			return defaultValue;
-		}
-		return Double.valueOf(sValue);
-	}
-	
 	public float getFloat(String column){
 		return Float.valueOf(getRawString(column));
 	}
 	
-	public float getFloat(String column, float defaultValue){
-		String sValue = getString(column);
-		if(sValue == null){
-			return defaultValue;
-		}
-		return Float.valueOf(sValue);
-	}
-	
 	public long getLong(String column){
 		return Long.valueOf(getRawString(column));
-	}
-	
-	public long getLong(String column, long defaultValue){
-		String sValue = getString(column);
-		if(sValue == null){
-			return defaultValue;
-		}
-		return Long.valueOf(sValue);
 	}
 	
 	public void set(String key,Object value){
